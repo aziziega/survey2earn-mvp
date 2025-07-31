@@ -1,0 +1,354 @@
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
+import { Clock, Coins, Star, ChevronLeft, ChevronRight, Award, CheckCircle } from "lucide-react"
+
+interface SurveyTakingProps {
+  surveyId: string
+}
+
+// Mock survey data
+const mockSurvey = {
+  id: 1,
+  title: "DeFi User Experience Research",
+  description: "Help us understand how users interact with DeFi protocols and what improvements they need.",
+  category: "DeFi",
+  reward: 50,
+  timeEstimate: "5-10 min",
+  participants: 234,
+  maxParticipants: 500,
+  creator: "0x1234...5678",
+  questions: [
+    {
+      id: "1",
+      type: "single-choice",
+      title: "How often do you use DeFi protocols?",
+      description: "Select the option that best describes your usage frequency",
+      required: true,
+      options: ["Daily", "Weekly", "Monthly", "Rarely", "Never"],
+    },
+    {
+      id: "2",
+      type: "multiple-choice",
+      title: "Which DeFi protocols have you used? (Select all that apply)",
+      required: true,
+      options: ["Uniswap", "Aave", "Compound", "MakerDAO", "Curve", "SushiSwap", "Other"],
+    },
+    {
+      id: "3",
+      type: "rating",
+      title: "How would you rate the overall user experience of DeFi protocols?",
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    {
+      id: "4",
+      type: "text",
+      title: "What is the biggest challenge you face when using DeFi protocols?",
+      description: "Please provide specific examples if possible",
+      required: true,
+    },
+    {
+      id: "5",
+      type: "scale",
+      title: "How likely are you to recommend DeFi to a friend?",
+      description: "Scale from 1 (not likely) to 10 (very likely)",
+      required: true,
+      min: 1,
+      max: 10,
+    },
+  ],
+}
+
+export function SurveyTaking({ surveyId }: SurveyTakingProps) {
+  const { toast } = useToast()
+  const router = useRouter()
+  const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [answers, setAnswers] = useState<Record<string, any>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isCompleted, setIsCompleted] = useState(false)
+
+  const survey = mockSurvey // In real app, fetch based on surveyId
+  const question = survey.questions[currentQuestion]
+  const progress = ((currentQuestion + 1) / survey.questions.length) * 100
+
+  const handleAnswer = (questionId: string, answer: any) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: answer,
+    }))
+  }
+
+  const handleNext = () => {
+    if (question.required && !answers[question.id]) {
+      toast({
+        title: "Answer Required",
+        description: "Please answer this question before continuing.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (currentQuestion < survey.questions.length - 1) {
+      setCurrentQuestion((prev) => prev + 1)
+    } else {
+      handleSubmit()
+    }
+  }
+
+  const handlePrevious = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion((prev) => prev - 1)
+    }
+  }
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true)
+
+    // Mock submission delay
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    setIsSubmitting(false)
+    setIsCompleted(true)
+
+    toast({
+      title: "Survey Completed!",
+      description: `You've earned ${survey.reward} S2E tokens and an NFT certificate.`,
+    })
+  }
+
+  if (isCompleted) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="pt-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Survey Completed!</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Thank you for your valuable feedback. Your rewards have been processed.
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-green-600" />
+                  <span>Token Reward</span>
+                </div>
+                <span className="font-bold text-green-600">{survey.reward} S2E</span>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Award className="w-5 h-5 text-purple-600" />
+                  <span>NFT Certificate</span>
+                </div>
+                <Badge variant="outline">Minted</Badge>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Button onClick={() => router.push("/dashboard")} className="w-full">
+                Go to Dashboard
+              </Button>
+              <Button onClick={() => router.push("/surveys")} variant="outline" className="w-full">
+                Take Another Survey
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <header className="bg-white dark:bg-gray-800 border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm" onClick={() => router.push("/surveys")}>
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Back to Surveys
+              </Button>
+              <div>
+                <h1 className="text-xl font-bold">{survey.title}</h1>
+                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    {survey.timeEstimate}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Coins className="w-4 h-4" />
+                    {survey.reward} S2E
+                  </span>
+                  <Badge variant="outline">{survey.category}</Badge>
+                </div>
+              </div>
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              Question {currentQuestion + 1} of {survey.questions.length}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          {/* Progress */}
+          <div className="mb-8">
+            <div className="flex justify-between text-sm mb-2">
+              <span>Progress</span>
+              <span>{Math.round(progress)}% complete</span>
+            </div>
+            <Progress value={progress} />
+          </div>
+
+          {/* Question Card */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline">Question {currentQuestion + 1}</Badge>
+                {question.required && <Badge variant="destructive">Required</Badge>}
+              </div>
+              <CardTitle className="text-xl">{question.title}</CardTitle>
+              {question.description && <CardDescription>{question.description}</CardDescription>}
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              {/* Question Input */}
+              {question.type === "text" && (
+                <Textarea
+                  value={answers[question.id] || ""}
+                  onChange={(e) => handleAnswer(question.id, e.target.value)}
+                  placeholder="Enter your answer..."
+                  rows={4}
+                />
+              )}
+
+              {question.type === "single-choice" && (
+                <RadioGroup
+                  value={answers[question.id] || ""}
+                  onValueChange={(value) => handleAnswer(question.id, value)}
+                >
+                  {question.options?.map((option, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <RadioGroupItem value={option} id={`option-${index}`} />
+                      <Label htmlFor={`option-${index}`}>{option}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              )}
+
+              {question.type === "multiple-choice" && (
+                <div className="space-y-3">
+                  {question.options?.map((option, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`option-${index}`}
+                        checked={(answers[question.id] || []).includes(option)}
+                        onCheckedChange={(checked) => {
+                          const currentAnswers = answers[question.id] || []
+                          if (checked) {
+                            handleAnswer(question.id, [...currentAnswers, option])
+                          } else {
+                            handleAnswer(
+                              question.id,
+                              currentAnswers.filter((a: string) => a !== option),
+                            )
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`option-${index}`}>{option}</Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {question.type === "rating" && (
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: question.max || 5 }, (_, i) => i + 1).map((rating) => (
+                    <Button
+                      key={rating}
+                      variant={answers[question.id] === rating ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleAnswer(question.id, rating)}
+                      className="w-12 h-12"
+                    >
+                      <Star className={`w-5 h-5 ${answers[question.id] === rating ? "fill-current" : ""}`} />
+                    </Button>
+                  ))}
+                  <span className="ml-4 text-sm text-gray-600">
+                    {answers[question.id] ? `${answers[question.id]}/${question.max}` : "Select rating"}
+                  </span>
+                </div>
+              )}
+
+              {question.type === "scale" && (
+                <div className="space-y-4">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>{question.min} - Not likely</span>
+                    <span>{question.max} - Very likely</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {Array.from(
+                      { length: (question.max || 10) - (question.min || 1) + 1 },
+                      (_, i) => (question.min || 1) + i,
+                    ).map((value) => (
+                      <Button
+                        key={value}
+                        variant={answers[question.id] === value ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleAnswer(question.id, value)}
+                        className="w-10 h-10"
+                      >
+                        {value}
+                      </Button>
+                    ))}
+                  </div>
+                  {answers[question.id] && (
+                    <p className="text-sm text-center text-gray-600">Selected: {answers[question.id]}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Navigation */}
+              <div className="flex justify-between pt-6 border-t">
+                <Button variant="outline" onClick={handlePrevious} disabled={currentQuestion === 0}>
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+
+                <Button onClick={handleNext} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    "Submitting..."
+                  ) : currentQuestion === survey.questions.length - 1 ? (
+                    "Submit Survey"
+                  ) : (
+                    <>
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}
