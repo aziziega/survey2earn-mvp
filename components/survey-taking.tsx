@@ -178,15 +178,15 @@ export function SurveyTaking({ surveyId }: SurveyTakingProps) {
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 border-b">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <Button variant="ghost" size="sm" onClick={() => router.push("/surveys")}>
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Back to Surveys
               </Button>
               <div>
-                <h1 className="text-xl font-bold">{survey.title}</h1>
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                <h1 className="text-lg sm:text-xl font-bold">{survey.title}</h1>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-600 dark:text-gray-300">
                   <span className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
                     {survey.timeEstimate}
@@ -199,14 +199,14 @@ export function SurveyTaking({ surveyId }: SurveyTakingProps) {
                 </div>
               </div>
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">
+            <div className="text-sm text-gray-600 dark:text-gray-300 self-start sm:self-auto">
               Question {currentQuestion + 1} of {survey.questions.length}
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="max-w-2xl mx-auto">
           {/* Progress */}
           <div className="mb-8">
@@ -279,19 +279,23 @@ export function SurveyTaking({ surveyId }: SurveyTakingProps) {
               )}
 
               {question.type === "rating" && (
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: question.max || 5 }, (_, i) => i + 1).map((rating) => (
-                    <Button
-                      key={rating}
-                      variant={answers[question.id] === rating ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handleAnswer(question.id, rating)}
-                      className="w-12 h-12"
-                    >
-                      <Star className={`w-5 h-5 ${answers[question.id] === rating ? "fill-current" : ""}`} />
-                    </Button>
-                  ))}
-                  <span className="ml-4 text-sm text-gray-600">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex flex-wrap gap-2">
+                    {Array.from({ length: question.max || 5 }, (_, i) => i + 1).map((rating) => (
+                      <Button
+                        key={rating}
+                        variant={answers[question.id] === rating ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleAnswer(question.id, rating)}
+                        className="w-10 h-10 sm:w-12 sm:h-12"
+                      >
+                        <Star
+                          className={`w-4 h-4 sm:w-5 sm:h-5 ${answers[question.id] === rating ? "fill-current" : ""}`}
+                        />
+                      </Button>
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-600">
                     {answers[question.id] ? `${answers[question.id]}/${question.max}` : "Select rating"}
                   </span>
                 </div>
@@ -299,11 +303,11 @@ export function SurveyTaking({ surveyId }: SurveyTakingProps) {
 
               {question.type === "scale" && (
                 <div className="space-y-4">
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-xs sm:text-sm text-gray-600">
                     <span>{question.min} - Not likely</span>
                     <span>{question.max} - Very likely</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {Array.from(
                       { length: (question.max || 10) - (question.min || 1) + 1 },
                       (_, i) => (question.min || 1) + i,
@@ -313,7 +317,7 @@ export function SurveyTaking({ surveyId }: SurveyTakingProps) {
                         variant={answers[question.id] === value ? "default" : "outline"}
                         size="sm"
                         onClick={() => handleAnswer(question.id, value)}
-                        className="w-10 h-10"
+                        className="w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm"
                       >
                         {value}
                       </Button>
@@ -326,13 +330,18 @@ export function SurveyTaking({ surveyId }: SurveyTakingProps) {
               )}
 
               {/* Navigation */}
-              <div className="flex justify-between pt-6 border-t">
-                <Button variant="outline" onClick={handlePrevious} disabled={currentQuestion === 0}>
+              <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevious}
+                  disabled={currentQuestion === 0}
+                  className="w-full sm:w-auto bg-transparent"
+                >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Previous
                 </Button>
 
-                <Button onClick={handleNext} disabled={isSubmitting}>
+                <Button onClick={handleNext} disabled={isSubmitting} className="w-full sm:w-auto">
                   {isSubmitting ? (
                     "Submitting..."
                   ) : currentQuestion === survey.questions.length - 1 ? (

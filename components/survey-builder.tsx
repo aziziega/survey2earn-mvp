@@ -150,14 +150,20 @@ export function SurveyBuilder() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 sm:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <div className="xl:col-span-3">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                <TabsTrigger value="questions">Questions</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
+                <TabsTrigger value="basic" className="text-xs sm:text-sm">
+                  Basic Info
+                </TabsTrigger>
+                <TabsTrigger value="questions" className="text-xs sm:text-sm">
+                  Questions
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="text-xs sm:text-sm">
+                  Settings
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="basic" className="space-y-6">
@@ -188,7 +194,7 @@ export function SurveyBuilder() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="category">Category</Label>
                         <Select
@@ -234,17 +240,17 @@ export function SurveyBuilder() {
               <TabsContent value="questions" className="space-y-6">
                 <div className="flex justify-between items-center">
                   <h2 className="text-xl font-semibold">Survey Questions</h2>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {questionTypes.map((type) => (
                       <Button
                         key={type.type}
                         variant="outline"
                         size="sm"
                         onClick={() => addQuestion(type.type as Question["type"])}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 text-xs sm:text-sm"
                       >
                         <type.icon className="w-4 h-4" />
-                        {type.label}
+                        <span className="hidden sm:inline">{type.label}</span>
                       </Button>
                     ))}
                   </div>
@@ -426,7 +432,7 @@ export function SurveyBuilder() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-6 xl:sticky xl:top-8">
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Survey Preview</CardTitle>

@@ -78,14 +78,14 @@ export function UserDashboard() {
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 border-b">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h1 className="text-2xl font-bold">Dashboard</h1>
-            <div className="flex items-center gap-4">
-              <Badge variant="outline" className="flex items-center gap-1">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <Badge variant="outline" className="flex items-center gap-1 w-fit">
                 <Coins className="w-4 h-4" />
                 {mockUserData.tokenBalance} S2E
               </Badge>
-              <Button onClick={() => router.push("/create-survey")}>
+              <Button onClick={() => router.push("/create-survey")} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Survey
               </Button>
@@ -96,16 +96,24 @@ export function UserDashboard() {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="surveys">Surveys</TabsTrigger>
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="surveys" className="text-xs sm:text-sm">
+              Surveys
+            </TabsTrigger>
+            <TabsTrigger value="achievements" className="text-xs sm:text-sm">
+              Achievements
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Level</CardTitle>
@@ -202,10 +210,10 @@ export function UserDashboard() {
               {mockSurveys.map((survey) => (
                 <Card key={survey.id}>
                   <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                      <div className="flex-1">
                         <CardTitle className="text-lg">{survey.title}</CardTitle>
-                        <CardDescription className="flex items-center gap-4 mt-2">
+                        <CardDescription className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2">
                           <span className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
                             {survey.timeEstimate}
@@ -216,7 +224,7 @@ export function UserDashboard() {
                           </span>
                         </CardDescription>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left sm:text-right">
                         <div className="text-2xl font-bold text-green-600">{survey.reward} S2E</div>
                         <Badge variant="outline">{survey.category}</Badge>
                       </div>
@@ -240,7 +248,7 @@ export function UserDashboard() {
 
           <TabsContent value="achievements" className="space-y-6">
             <h2 className="text-xl font-semibold">Achievements</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {mockAchievements.map((achievement, index) => (
                 <Card
                   key={index}
@@ -268,7 +276,7 @@ export function UserDashboard() {
 
           <TabsContent value="analytics" className="space-y-6">
             <h2 className="text-xl font-semibold">Your Analytics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">

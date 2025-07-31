@@ -131,8 +131,8 @@ export function AdminDashboard() {
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 border-b">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h1 className="text-xl sm:text-2xl font-bold">Admin Dashboard</h1>
             <div className="flex items-center gap-4">
               <Badge variant="outline" className="flex items-center gap-1">
                 <Shield className="w-4 h-4" />
@@ -145,17 +145,27 @@ export function AdminDashboard() {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="surveys">Surveys</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="moderation">Moderation</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="surveys" className="text-xs sm:text-sm">
+              Surveys
+            </TabsTrigger>
+            <TabsTrigger value="users" className="text-xs sm:text-sm">
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="moderation" className="text-xs sm:text-sm">
+              Moderation
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -275,19 +285,19 @@ export function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="surveys" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Survey Management</h2>
-              <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="text-lg sm:text-xl font-semibold">Survey Management</h2>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     placeholder="Search surveys..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 w-full sm:w-auto"
                   />
                 </div>
-                <Button variant="outline">
+                <Button variant="outline" className="w-full sm:w-auto bg-transparent">
                   <Filter className="w-4 h-4 mr-2" />
                   Filter
                 </Button>
@@ -295,72 +305,74 @@ export function AdminDashboard() {
             </div>
 
             <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Survey</TableHead>
-                    <TableHead>Creator</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Participants</TableHead>
-                    <TableHead>Reward</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockSurveys.map((survey) => (
-                    <TableRow key={survey.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{survey.title}</div>
-                          {survey.flagged && (
-                            <Badge variant="destructive" className="mt-1">
-                              <AlertTriangle className="w-3 h-3 mr-1" />
-                              Flagged
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">{survey.creator}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            survey.status === "active"
-                              ? "default"
-                              : survey.status === "pending"
-                                ? "secondary"
-                                : "outline"
-                          }
-                        >
-                          {survey.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {survey.participants}/{survey.maxParticipants}
-                      </TableCell>
-                      <TableCell>{survey.reward} S2E</TableCell>
-                      <TableCell>{survey.created}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          {survey.status === "pending" && (
-                            <>
-                              <Button size="sm" variant="outline">
-                                <CheckCircle className="w-4 h-4" />
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                <XCircle className="w-4 h-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[200px]">Survey</TableHead>
+                      <TableHead className="min-w-[120px]">Creator</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Participants</TableHead>
+                      <TableHead>Reward</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {mockSurveys.map((survey) => (
+                      <TableRow key={survey.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium text-sm sm:text-base">{survey.title}</div>
+                            {survey.flagged && (
+                              <Badge variant="destructive" className="mt-1">
+                                <AlertTriangle className="w-3 h-3 mr-1" />
+                                Flagged
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-xs sm:text-sm">{survey.creator}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              survey.status === "active"
+                                ? "default"
+                                : survey.status === "pending"
+                                  ? "secondary"
+                                  : "outline"
+                            }
+                          >
+                            {survey.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {survey.participants}/{survey.maxParticipants}
+                        </TableCell>
+                        <TableCell className="text-sm">{survey.reward} S2E</TableCell>
+                        <TableCell className="text-sm">{survey.created}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1 sm:gap-2">
+                            <Button size="sm" variant="outline">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            {survey.status === "pending" && (
+                              <>
+                                <Button size="sm" variant="outline">
+                                  <CheckCircle className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <XCircle className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </Card>
           </TabsContent>
 

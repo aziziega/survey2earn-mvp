@@ -149,9 +149,9 @@ export function SurveyList() {
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 border-b">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Available Surveys</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">Available Surveys</h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1">Earn tokens by sharing your insights and opinions</p>
             </div>
             <div className="flex items-center gap-2">
@@ -166,7 +166,7 @@ export function SurveyList() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="flex flex-col lg:flex-row gap-4 mb-8">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
@@ -177,40 +177,42 @@ export function SurveyList() {
             />
           </div>
 
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="defi">DeFi</SelectItem>
-              <SelectItem value="nft">NFT</SelectItem>
-              <SelectItem value="gaming">Gaming</SelectItem>
-              <SelectItem value="dao">DAO</SelectItem>
-              <SelectItem value="trading">Trading</SelectItem>
-              <SelectItem value="general">General</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="defi">DeFi</SelectItem>
+                <SelectItem value="nft">NFT</SelectItem>
+                <SelectItem value="gaming">Gaming</SelectItem>
+                <SelectItem value="dao">DAO</SelectItem>
+                <SelectItem value="trading">Trading</SelectItem>
+                <SelectItem value="general">General</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="reward">Highest Reward</SelectItem>
-              <SelectItem value="participants">Most Popular</SelectItem>
-              <SelectItem value="rating">Highest Rated</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="reward">Highest Reward</SelectItem>
+                <SelectItem value="participants">Most Popular</SelectItem>
+                <SelectItem value="rating">Highest Rated</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Survey Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {filteredSurveys.map((survey) => (
             <Card key={survey.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
               <CardHeader className="pb-4">
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
                   <Badge variant="outline">{survey.category}</Badge>
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -235,11 +237,11 @@ export function SurveyList() {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4 text-gray-500" />
-                    <span>{survey.timeEstimate}</span>
+                    <span className="text-xs sm:text-sm">{survey.timeEstimate}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4 text-gray-500" />
-                    <span>
+                    <span className="text-xs sm:text-sm">
                       {survey.participants}/{survey.maxParticipants}
                     </span>
                   </div>
