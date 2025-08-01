@@ -1,11 +1,11 @@
 "use client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ConnectButton } from "@/components/connect-button"
-import { MobileNav } from "@/components/mobile-nav"
-import { useAccount } from "@/app/providers"
+import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import {
   Coins,
   Shield,
@@ -19,11 +19,106 @@ import {
   Wallet,
   FileText,
   Plus,
+  Menu,
+  X,
 } from "lucide-react"
+
+// Mobile Navigation Component
+function MobileNav() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="md:hidden">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-2"
+      >
+        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </Button>
+
+      {isOpen && (
+        <div className="absolute top-16 left-0 right-0 bg-white dark:bg-gray-900 border-b shadow-lg z-50 p-4">
+          <nav className="space-y-4">
+            <a href="#features" className="block text-sm font-medium hover:text-blue-600">Features</a>
+            <a href="#how-it-works" className="block text-sm font-medium hover:text-blue-600">How It Works</a>
+            <a href="#stats" className="block text-sm font-medium hover:text-blue-600">Stats</a>
+          </nav>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Connect Button Component
+function ConnectButton() {
+  const { address, isConnected, isConnecting } = useAccount()
+  const { connect, connectors, isPending } = useConnect()
+  const { disconnect } = useDisconnect()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="w-32 h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+    )
+  }
+
+  if (isConnected && address) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="hidden sm:block text-sm text-gray-600 dark:text-gray-300">
+          {address.slice(0, 6)}...{address.slice(-4)}
+        </div>
+        <Button
+          onClick={() => disconnect()}
+          variant="outline"
+          size="sm"
+        >
+          Disconnect
+        </Button>
+      </div>
+    )
+  }
+
+  if (isConnecting || isPending) {
+    return (
+      <Button disabled size="sm">
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+        Connecting...
+      </Button>
+    )
+  }
+
+  return (
+    <div className="flex gap-2">
+      {connectors.map((connector) => (
+        <Button
+          key={connector.uid}
+          onClick={() => connect({ connector })}
+          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          size="sm"
+        >
+          <Wallet className="w-4 h-4 mr-2" />
+          Connect {connector.name}
+        </Button>
+      ))}
+    </div>
+  )
+}
 
 export function LandingPage() {
   const { isConnected } = useAccount()
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const features = [
     {
@@ -65,10 +160,19 @@ export function LandingPage() {
     { label: "Projects Served", value: "340+" },
   ]
 
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
+      <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-gray-900/80 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <MobileNav />
@@ -77,6 +181,14 @@ export function LandingPage() {
             </div>
             <span className="text-xl font-bold">Survey2Earn</span>
           </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <a href="#features" className="text-sm font-medium hover:text-blue-600 transition-colors">Features</a>
+            <a href="#how-it-works" className="text-sm font-medium hover:text-blue-600 transition-colors">How It Works</a>
+            <a href="#stats" className="text-sm font-medium hover:text-blue-600 transition-colors">Stats</a>
+          </nav>
+
           <ConnectButton />
         </div>
       </header>
@@ -113,14 +225,14 @@ export function LandingPage() {
           ) : (
             <div className="flex flex-col items-center gap-4 px-4">
               <ConnectButton />
-              <p className="text-sm text-gray-500 text-center">Connect your wallet to get started</p>
+              <p className="text-sm text-gray-500 text-center">Connect your Xellar wallet to get started</p>
             </div>
           )}
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-white/50 dark:bg-gray-800/50">
+      <section id="stats" className="py-16 px-4 bg-white/50 dark:bg-gray-800/50">
         <div className="container mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
             {stats.map((stat, index) => (
@@ -134,7 +246,7 @@ export function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4">
+      <section id="features" className="py-20 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose Survey2Earn?</h2>
@@ -145,7 +257,7 @@ export function LandingPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <CardHeader>
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mb-4">
                     <feature.icon className="w-6 h-6 text-white" />
@@ -162,7 +274,7 @@ export function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-4 bg-white/50 dark:bg-gray-800/50">
+      <section id="how-it-works" className="py-20 px-4 bg-white/50 dark:bg-gray-800/50">
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
@@ -188,9 +300,9 @@ export function LandingPage() {
                     <span className="text-sm font-bold text-blue-600">1</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-2">Connect Your Wallet</h4>
+                    <h4 className="font-semibold mb-2">Connect Your Xellar Wallet</h4>
                     <p className="text-gray-600 dark:text-gray-300">
-                      Connect your Web3 wallet (MetaMask, WalletConnect, etc.) to get started on the platform.
+                      Connect your Xellar wallet to get started on the platform with Web3 authentication.
                     </p>
                   </div>
                 </div>
@@ -245,7 +357,7 @@ export function LandingPage() {
                       <Wallet className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <div className="font-medium">Wallet Connected</div>
+                      <div className="font-medium">Xellar Wallet Connected</div>
                       <div className="text-sm text-gray-500">0x1234...5678</div>
                     </div>
                   </div>
@@ -274,111 +386,11 @@ export function LandingPage() {
             </div>
           </div>
 
-          {/* For Survey Creators */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Visual representation */}
-            <div className="relative order-2 lg:order-1">
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                    <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                      <Plus className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-medium">Survey Created</div>
-                      <div className="text-sm text-gray-500">NFT Market Analysis</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                    <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
-                      <Coins className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-medium">Tokens Deposited</div>
-                      <div className="text-sm text-gray-500">5,000 S2E for rewards</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                    <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
-                      <BarChart3 className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <div className="font-medium">Results Ready</div>
-                      <div className="text-sm text-gray-500">100 responses collected</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="order-1 lg:order-2">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold">For Survey Creators</h3>
-              </div>
-
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold text-purple-600">1</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Create Your Survey</h4>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Use our intuitive survey builder to create questions, set categories, and define your target
-                      audience.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold text-purple-600">2</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Set Rewards & Fund</h4>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Determine reward amounts per response and deposit S2E tokens to fund your survey campaign.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold text-purple-600">3</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Launch & Monitor</h4>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Publish your survey and track responses in real-time with our comprehensive analytics dashboard.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold text-purple-600">4</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Get Insights</h4>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Access detailed analytics, export data, and gain valuable insights from high-quality responses.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Key Benefits */}
           <div className="mt-20">
             <h3 className="text-2xl font-bold text-center mb-12">What Makes Us Different</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+              <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-6 h-6 text-green-600" />
                 </div>
@@ -388,7 +400,7 @@ export function LandingPage() {
                 </p>
               </div>
 
-              <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+              <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Zap className="w-6 h-6 text-blue-600" />
                 </div>
@@ -398,7 +410,7 @@ export function LandingPage() {
                 </p>
               </div>
 
-              <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+              <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Trophy className="w-6 h-6 text-purple-600" />
                 </div>
@@ -408,7 +420,7 @@ export function LandingPage() {
                 </p>
               </div>
 
-              <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+              <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Star className="w-6 h-6 text-orange-600" />
                 </div>
@@ -419,134 +431,69 @@ export function LandingPage() {
               </div>
             </div>
           </div>
-
-          {/* Process Flow Diagram */}
-          <div className="mt-20">
-            <h3 className="text-2xl font-bold text-center mb-12">Survey Lifecycle</h3>
-            <div className="relative">
-              {/* Desktop Flow */}
-              <div className="hidden lg:flex items-center justify-between">
-                <div className="flex flex-col items-center text-center max-w-xs">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-4">
-                    <Plus className="w-8 h-8 text-white" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Survey Creation</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Creator builds survey with questions and sets reward parameters
-                  </p>
-                </div>
-
-                <div className="flex-1 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 mx-4"></div>
-
-                <div className="flex flex-col items-center text-center max-w-xs">
-                  <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mb-4">
-                    <Coins className="w-8 h-8 text-white" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Token Deposit</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Smart contract holds tokens for automatic reward distribution
-                  </p>
-                </div>
-
-                <div className="flex-1 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 mx-4"></div>
-
-                <div className="flex flex-col items-center text-center max-w-xs">
-                  <div className="w-16 h-16 bg-gradient-to-r from-pink-600 to-red-600 rounded-full flex items-center justify-center mb-4">
-                    <Users className="w-8 h-8 text-white" />
-                  </div>
-                  <h4 className="font-semibold mb-2">User Participation</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Verified users complete surveys and provide quality responses
-                  </p>
-                </div>
-
-                <div className="flex-1 h-0.5 bg-gradient-to-r from-pink-600 to-red-600 mx-4"></div>
-
-                <div className="flex flex-col items-center text-center max-w-xs">
-                  <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-orange-600 rounded-full flex items-center justify-center mb-4">
-                    <BarChart3 className="w-8 h-8 text-white" />
-                  </div>
-                  <h4 className="font-semibold mb-2">Results & Analytics</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Creator receives insights while users earn tokens and NFTs
-                  </p>
-                </div>
-              </div>
-
-              {/* Mobile Flow */}
-              <div className="lg:hidden space-y-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Plus className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">Survey Creation</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Creator builds survey with questions and sets reward parameters
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Coins className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">Token Deposit</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Smart contract holds tokens for automatic reward distribution
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-pink-600 to-red-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Users className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">User Participation</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Verified users complete surveys and provide quality responses
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <BarChart3 className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-1">Results & Analytics</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Creator receives insights while users earn tokens and NFTs
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="container mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Start Earning?</h2>
-          <p className="text-xl mb-8 opacity-90">Join thousands of users already earning tokens through surveys</p>
-          {!isConnected && <ConnectButton />}
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            Ready to Start Earning?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of users who are already earning tokens by sharing their opinions
+          </p>
+
+          {!isConnected && (
+            <div className="flex justify-center">
+              <ConnectButton />
+            </div>
+          )}
+
+          {isConnected && (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={() => router.push("/dashboard")}
+                className="w-full sm:w-auto"
+              >
+                Go to Dashboard <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => router.push("/surveys")}
+                className="w-full sm:w-auto bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                Browse Surveys
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Footer */}
       <footer className="py-12 px-4 bg-gray-900 text-white">
-        <div className="container mx-auto text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="flex items-center space-x-2 mb-4 md:mb-0">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold">Survey2Earn</span>
             </div>
-            <span className="text-xl font-bold">Survey2Earn</span>
+
+            <div className="flex items-center space-x-6 text-sm text-gray-400">
+              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-white transition-colors">Support</a>
+            </div>
           </div>
-          <p className="text-gray-400">© 2024 Survey2Earn. Built on Web3 for the community.</p>
+
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
+            <p>© 2024 Survey2Earn. Built on Web3 for the community. Powered by Xellar.</p>
+          </div>
         </div>
       </footer>
     </div>

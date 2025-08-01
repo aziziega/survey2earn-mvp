@@ -8,12 +8,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useAccount } from "@/app/providers"
+import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { Wallet, Copy, ExternalLink, LogOut } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 export function ConnectButton() {
-  const { isConnected, address, connect, disconnect } = useAccount()
+  const { isConnected, address } = useAccount()
+  const { connect, connectors } = useConnect()
+  const { disconnect } = useDisconnect()
   const { toast } = useToast()
 
   const copyAddress = () => {
@@ -26,13 +28,14 @@ export function ConnectButton() {
     }
   }
 
-  const formatAddress = (addr: string) => {
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`
-  }
+  const formatAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`
 
   if (!isConnected) {
     return (
-      <Button onClick={connect} className="flex items-center gap-2">
+      <Button
+        onClick={() => connect({ connector: connectors[0] })}
+        className="flex items-center gap-2"
+      >
         <Wallet className="w-4 h-4" />
         <span className="hidden sm:inline">Connect Wallet</span>
         <span className="sm:hidden">Connect</span>
@@ -54,19 +57,29 @@ export function ConnectButton() {
             <div className="w-2 h-2 bg-green-500 rounded-full" />
             <span className="text-sm text-muted-foreground">Connected</span>
           </div>
-          <div className="font-mono text-xs sm:text-sm mt-1">{address && formatAddress(address)}</div>
+          <div className="font-mono text-xs sm:text-sm mt-1">
+            {address && formatAddress(address)}
+          </div>
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={copyAddress} className="flex items-center gap-2">
           <Copy className="w-4 h-4" />
           <span className="text-sm">Copy Address</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="flex items-center gap-2">
+        <DropdownMenuItem
+          onClick={() =>
+            window.open(`https://explorer.xellar.io/address/${address}`, "_blank")
+          }
+          className="flex items-center gap-2"
+        >
           <ExternalLink className="w-4 h-4" />
           <span className="text-sm">View on Explorer</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={disconnect} className="flex items-center gap-2 text-red-600">
+        <DropdownMenuItem
+          onClick={() => disconnect()}
+          className="flex items-center gap-2 text-red-600"
+        >
           <LogOut className="w-4 h-4" />
           <span className="text-sm">Disconnect</span>
         </DropdownMenuItem>
